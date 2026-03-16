@@ -9,23 +9,33 @@
 
 /*******************************
 TODOS
-- read from config file instead (assets/config.txt) 
+1 move sample text into circle
+2a read from config file instead (assets/config.txt) 
     - window
     - shapes
     - font 
     - yadayada
-- have some container that stores shapes (the ones found in config file)
-- draw shapes
+2b have some container that stores shapes (the ones found in config file)
+3 draw shapes from container
 ********************************/
+
+sf::Vector2f getTextPos(const sf::CircleShape& c, unsigned int font_size, unsigned int text_len)
+{
+    auto x = c.getPosition().x + c.getRadius();// - text_len; //(text_len / 2);
+    auto y = c.getPosition().y + c.getRadius() - (font_size / 2);
+    return {x, y};
+}
+
 int main(int argc, char* argv[])
 {
     
     const int wWidth = 1280;
     const int wHeight = 720;
+    const unsigned int fontSize = 14;
 
     sf::RenderWindow window(sf::VideoMode({ wWidth, wHeight }), "SFML works!");
     window.setFramerateLimit(60);
-
+    window.setPosition({0,0}); // 1921,0
     if(!ImGui::SFML::Init(window))
     {
         std::cout << "Could not init window" << "\n";
@@ -53,14 +63,16 @@ int main(int argc, char* argv[])
 
     sf::Font font;
 
-    if(!font.openFromFile("assets/javatext.tff"))
+    if(!font.openFromFile("assets/javatext.ttf"))
     {
         std::cout << "Could not open font file!" << "\n";
         std::exit(-1);
     }
-    sf::Text text(font, "Sample Text", 24);
+    sf::Text text(font, "Sample Text", fontSize);
+    std::size_t string_size = 11;
 
-    text.setPosition({ 0, wHeight - (float)(text.getCharacterSize())});
+    // text.setPosition({ circle.getPosition().x, wHeight - (float)(text.getCharacterSize())});
+    text.setPosition(getTextPos(circle, fontSize, string_size));
 
     char displayString[255] = "Sample Text";
     
@@ -100,7 +112,7 @@ int main(int argc, char* argv[])
             {
                 text.setString(displayString);
             }
-            ImGui::SameLane();
+            ImGui::SameLine();
             if(ImGui::Button("Reset Circle"))
             {
                  circle.setPosition({0, 0});
@@ -111,7 +123,9 @@ int main(int argc, char* argv[])
             circle.setRadius(circleRadius);
             circle.setFillColor(sf::Color(uint8_t(c[0]*255), uint8_t(c[1]*255), uint8_t(c[2]*255)));
             circle.setPosition({circle.getPosition().x + circleSpeedX, circle.getPosition().y + circleSpeedY});
-
+            
+            text.setPosition(getTextPos(circle, fontSize, string_size));
+            
             window.clear();
             if(drawCircle)
             {
@@ -124,7 +138,6 @@ int main(int argc, char* argv[])
             ImGui::SFML::Render(window);
             window.display();
         }    
-
-        return 0;
     }
+    return 0;
 }
