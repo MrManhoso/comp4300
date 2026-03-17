@@ -19,6 +19,23 @@ TODOS
 3 draw shapes from container
 ********************************/
 
+void setEditor(bool& drawCircle, bool& drawText, float& circleRadius, int& circleSegments, char* displayString, float c[3])
+{
+    ImGui::Begin("Editor");
+    ImGui::Text("Edit Options");
+    ImGui::Checkbox("Draw Circle", &drawCircle);
+    ImGui::SameLine();
+    ImGui::Checkbox("Draw Text", &drawText);
+    ImGui::SliderFloat("Radius", &circleRadius, 0.0f, 300.0f);
+    ImGui::SliderInt("Sides", &circleSegments, 3, 64);
+    ImGui::ColorEdit3("Color Circle", c);
+    ImGui::InputText("Text", displayString, 255);
+    // ImGui::Button("Set Text");
+    // ImGui::SameLine();
+    // ImGui::Button("Reset");
+    // ImGui::End();
+}
+
 sf::Vector2f getTextPos(const sf::CircleShape& c, const sf::Text& t)
 {
     auto center = t.getLocalBounds().getCenter();
@@ -71,8 +88,6 @@ int main(int argc, char* argv[])
     }
     sf::Text text(font, "Sample Text", fontSize);
     text.setFillColor(sf::Color::Black);
-
-    // text.setPosition({ circle.getPosition().x, wHeight - (float)(text.getCharacterSize())});
     text.setPosition(getTextPos(circle, text));
 
     char displayString[255] = "Sample Text";
@@ -100,23 +115,15 @@ int main(int argc, char* argv[])
 
             ImGui::SFML::Update(window, deltaClock.restart());
 
-            ImGui::Begin("Window title!");
-            ImGui::Text("Window text");
-            ImGui::Checkbox("Draw Circle", &drawCircle);
-            ImGui::SameLine();
-            ImGui::Checkbox("Draw Text", &drawText);
-            ImGui::SliderFloat("Radius", &circleRadius, 0.0f, 300.0f);
-            ImGui::SliderInt("Sides", &circleSegments, 3, 64);
-            ImGui::ColorEdit3("Color Circle", c);
-            ImGui::InputText("Text", displayString, 255);
+            setEditor(drawCircle, drawText, circleRadius, circleSegments, displayString, c);
             if(ImGui::Button("Set Text"))
             {
                 text.setString(displayString);
             }
             ImGui::SameLine();
-            if(ImGui::Button("Reset Circle"))
+            if(ImGui::Button("Reset"))
             {
-                 circle.setPosition({0, 0});
+                circle.setPosition({0, 0});
             }
             ImGui::End();
 
