@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
     }
     sf::Text text(font, "Sample Text", fontSize);
     std::size_t string_size = 11;
+    // text.getGlobalBounds()
 
     // text.setPosition({ circle.getPosition().x, wHeight - (float)(text.getCharacterSize())});
     text.setPosition(getTextPos(circle, fontSize, string_size));

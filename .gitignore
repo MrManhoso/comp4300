@@ -1,3 +1,10 @@
-bin/imgui.ini
-build/
 bin/
+
+build/_deps/
+build/CMakeFiles/
+build/dependencies/
+build/src/
+build/cmake_install.cmake
+build/CMakeCache.txt
+build/CMakeCache.txt
+build/Makefile
