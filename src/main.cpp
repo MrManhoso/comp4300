@@ -19,10 +19,11 @@ TODOS
 3 draw shapes from container
 ********************************/
 
-sf::Vector2f getTextPos(const sf::CircleShape& c, unsigned int font_size, unsigned int text_len)
+sf::Vector2f getTextPos(const sf::CircleShape& c, const sf::Text& t)
 {
-    auto x = c.getPosition().x + c.getRadius();// - text_len; //(text_len / 2);
-    auto y = c.getPosition().y + c.getRadius() - (font_size / 2);
+    auto center = t.getLocalBounds().getCenter();
+    auto x = c.getPosition().x + c.getRadius() - center.x;// - text_len; //(text_len / 2);
+    auto y = c.getPosition().y + c.getRadius() - center.y;// (font_size / 2) - center.y;
     return {x, y};
 }
 
@@ -69,11 +70,10 @@ int main(int argc, char* argv[])
         std::exit(-1);
     }
     sf::Text text(font, "Sample Text", fontSize);
-    std::size_t string_size = 11;
-    // text.getGlobalBounds()
+    text.setFillColor(sf::Color::Black);
 
     // text.setPosition({ circle.getPosition().x, wHeight - (float)(text.getCharacterSize())});
-    text.setPosition(getTextPos(circle, fontSize, string_size));
+    text.setPosition(getTextPos(circle, text));
 
     char displayString[255] = "Sample Text";
     
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
             circle.setFillColor(sf::Color(uint8_t(c[0]*255), uint8_t(c[1]*255), uint8_t(c[2]*255)));
             circle.setPosition({circle.getPosition().x + circleSpeedX, circle.getPosition().y + circleSpeedY});
             
-            text.setPosition(getTextPos(circle, fontSize, string_size));
+            text.setPosition(getTextPos(circle, text));
             
             window.clear();
             if(drawCircle)
