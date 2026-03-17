@@ -22,3 +22,6 @@ https://github.com/eliasdaler/cmake-fetchcontent-tutorial-code
 **cmake fetch sfml, imgui, imgui-sfml**
 https://edw.is/using-cmake/
 
+**imgui interactive manual**
+https://pthom.github.io/imgui_explorer/
+

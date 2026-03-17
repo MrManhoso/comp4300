@@ -115,6 +115,7 @@ int main(int argc, char* argv[])
 
             ImGui::SFML::Update(window, deltaClock.restart());
 
+            // This did not turn out great...
             setEditor(drawCircle, drawText, circleRadius, circleSegments, displayString, c);
             if(ImGui::Button("Set Text"))
             {
