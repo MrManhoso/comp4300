@@ -1,5 +1,8 @@
 COMP4300
 
+# Setup
+sudo apt-get install g++ build-essential cmake libxss-dev libxxf86vm-dev libxkbfile-dev libxv-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libudev-dev libfreetype6-dev
+
 # Links
 **2025 fall lecture**
 https://www.youtube.com/watch?v=3WWjsTPdlag&list=PL_xRyXins848Mfiv4hIgiMZgLpzFT7ohv&index=21
