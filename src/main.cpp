@@ -1,7 +1,11 @@
+#include "data.h"
+#include "utils.h"
+
 #include <filesystem>
 #include <iostream>
 #include <memory>
 #include <fstream>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 #include "imgui.h"
@@ -9,6 +13,7 @@
 
 /*******************************
 TODOS
+Assignment 1:
 1 move sample text into circle
 2a read from config file instead (assets/config.txt) 
     - window
@@ -17,6 +22,15 @@ TODOS
     - yadayada
 2b have some container that stores shapes (the ones found in config file)
 3 draw shapes from container
+4 shapes skall studsa mot kanter. Dvs reversa x speed om den studsar mot lodrät kant
+5 shape name should be drawn in center of shape with given color and font size
+5 Imgui interface (editorn/shape properties)
+    - List all shapes, select any one and edit selected shapes properties
+    - Toggle whether the shape should be drawn or not
+    - Change scale of shape, 0-4
+    - Change x and y velocity, -8 - 8
+    - Change color of shape
+    - Change name of shape
 ********************************/
 
 void setEditor(bool& drawCircle, bool& drawText, float& circleRadius, int& circleSegments, char* displayString, float c[3])
@@ -36,6 +50,7 @@ void setEditor(bool& drawCircle, bool& drawText, float& circleRadius, int& circl
     // ImGui::End();
 }
 
+// TODO Prob not entirely correct at the moment
 sf::Vector2f getTextPos(const sf::CircleShape& c, const sf::Text& t)
 {
     auto center = t.getLocalBounds().getCenter();
@@ -44,12 +59,30 @@ sf::Vector2f getTextPos(const sf::CircleShape& c, const sf::Text& t)
     return {x, y};
 }
 
+
+
 int main(int argc, char* argv[])
 {
+    unsigned int wWidth = 1280;
+    unsigned int wHeight = 720;
+    unsigned int fontSize = 14;
     
-    const int wWidth = 1280;
-    const int wHeight = 720;
-    const unsigned int fontSize = 14;
+    // Get config
+    std::ifstream file("config/config.txt");
+    std::string line;
+    while (std::getline(file, line)) {
+        auto vec = split(line, " ");
+        if(vec.size() < 3) continue;
+        switch (to_setting(vec[0]))
+        {
+        case Setting::Window:
+            wWidth = std::stoul(vec[1]);
+            wHeight = std::stoul(vec[2]);
+            break;
+        // TODO rest!
+        }
+    }
+    file.close();
 
     sf::RenderWindow window(sf::VideoMode({ wWidth, wHeight }), "SFML works!");
     window.setFramerateLimit(60);
