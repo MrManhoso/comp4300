@@ -1,5 +1,8 @@
+#include <memory>
 #include <string>
 #include <string_view>
+
+#include <SFML/Graphics.hpp>
 
 enum class Setting
 {
@@ -10,7 +13,7 @@ enum class Setting
     Unknown
 };
 
-std::string_view to_string(Setting s)
+inline std::string_view to_string(Setting s)
 {
     switch(s)
     {
@@ -22,7 +25,7 @@ std::string_view to_string(Setting s)
     return {};
 }
 
-Setting to_setting(const std::string& s)
+inline Setting to_setting(const std::string& s)
 {
     if (s == "Circle") return Setting::Circle;
     if (s == "Fonts") return Setting::Fonts;
@@ -30,3 +33,29 @@ Setting to_setting(const std::string& s)
     if (s == "Window") return Setting::Window;
     return Setting::Unknown;
 }
+
+struct ShapeData
+{
+    template <typename TShape>
+    ShapeData(const std::string& n, TShape&& s, float sx, float sy) :
+        name(n), speed_x(sx), speed_y(sy) 
+    {
+        shape = std::make_unique<TShape>(std::move(s));
+    }
+    
+    std::string name;
+    std::unique_ptr<sf::Shape> shape;
+    float speed_x;
+    float speed_y;
+    // float color[3];
+    bool draw{true};
+};
+
+struct TextData
+{
+    TextData(sf::Text&& t) : text(std::move(t)), draw{true} {}
+    
+    sf::Text text;
+    // char displayString[255];
+    bool draw;
+};

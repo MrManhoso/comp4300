@@ -1,4 +1,9 @@
 COMP4300
+# Config file
+Circle:
+Name, Init pos (x,y), Init speed (sx,sy), Color (R,G,B), Size (w,h)
+Rectangle:
+Name, Init pos (x,y), Init speed (sx,sy), Color (R,G,B), Size (r)
 
 # Setup
 sudo apt-get install g++ build-essential cmake libxss-dev libxxf86vm-dev libxkbfile-dev libxv-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libudev-dev libfreetype6-dev
