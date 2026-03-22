@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -51,28 +52,36 @@ inline sf::Text create_text(sf::Font font, unsigned int fontSize, const std::str
     return text;
 }
 
-template <typename T>
-inline sf::Vector2f get_text_pos(const T& c, const sf::Text& t)
+// template <typename T>
+// Note in case of circle size is diameter both for x and y
+inline sf::Vector2f get_text_pos(const sf::Vector2f& shape_pos, const sf::Vector2f& shape_size, const sf::Text& t)
 {
-    throw std::string("not implemented");
+    std::cout << "get_text_pos generic" << std::endl;
+    auto center = t.getLocalBounds().getCenter();
+    auto x = shape_pos.x + (shape_size.x/2) - center.x;
+    auto y = shape_pos.y + (shape_size.y/2) - center.y;
+    return {x, y};
+    // throw std::string("not implemented");
 }
 
 // TODO Prob not entirely correct at the moment
-template <>
-inline sf::Vector2f get_text_pos<sf::CircleShape>(const sf::CircleShape& c, const sf::Text& t)
-{
-    auto center = t.getLocalBounds().getCenter();
-    auto x = c.getPosition().x + c.getRadius() - center.x;// - text_len; //(text_len / 2);
-    auto y = c.getPosition().y + c.getRadius() - center.y;// (font_size / 2) - center.y;
-    return {x, y};
-}
+// template <>
+// inline sf::Vector2f get_text_pos<sf::CircleShape>(const sf::CircleShape& c, const sf::Text& t)
+// {
+//     std::cout << "get_text_pos circle" << std::endl;
+//     auto center = t.getLocalBounds().getCenter();
+//     auto x = c.getPosition().x + c.getRadius() - center.x;// - text_len; //(text_len / 2);
+//     auto y = c.getPosition().y + c.getRadius() - center.y;// (font_size / 2) - center.y;
+//     return {x, y};
+// }
 
-// TODO Prob not entirely correct at the moment
-template <>
-inline sf::Vector2f get_text_pos<sf::RectangleShape>(const sf::RectangleShape& r, const sf::Text& t)
-{
-    auto center = t.getLocalBounds().getCenter();
-    auto x = r.getPosition().x + (r.getSize().x/2) - center.x;
-    auto y = r.getPosition().y + (r.getSize().y/2) - center.y;
-    return {x, y};
-}
+// // TODO Prob not entirely correct at the moment
+// template <>
+// inline sf::Vector2f get_text_pos<sf::RectangleShape>(const sf::RectangleShape& r, const sf::Text& t)
+// {
+//     std::cout << "get_text_pos rectangle" << std::endl;
+//     auto center = t.getLocalBounds().getCenter();
+//     auto x = r.getPosition().x + (r.getSize().x/2) - center.x;
+//     auto y = r.getPosition().y + (r.getSize().y/2) - center.y;
+//     return {x, y};
+// }

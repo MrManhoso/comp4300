@@ -69,7 +69,8 @@ int main(int argc, char* argv[])
         auto vec = split(line, " ");
         std::cout << "Found " << vec.size() << " cols for setting " << vec[0] << std::endl;
         if(vec.size() < 3) continue;
-        switch (to_setting(vec[0]))
+        auto setting = to_setting(vec[0]);
+        switch (setting)
         {
         case Setting::Window:
             wWidth = std::stoul(vec[1]);
@@ -87,18 +88,21 @@ int main(int argc, char* argv[])
             break;
         case Setting::Circle:
             if (vec.size() == 10) {
-                std::cout << "Creating circle..." << std::endl;
-                shapes.emplace_back(ShapeData(vec[1], create_circle(vec), std::stof(vec[4]), std::stof(vec[5])));
-                std::cout << "Creating text..." << std::endl;
+                shapes.emplace_back(ShapeData(vec[1], create_circle(vec), std::stof(vec[4]), std::stof(vec[5]), setting));
                 // Asserts we have read font... maybe fix later
-                texts.emplace_back(create_text(font, fontSize, vec[1], [&shapes](const sf::Text& text) { return get_text_pos(shapes.back(), text); }));
-                std::cout << "Created circle and text" << std::endl;
+                texts.emplace_back(create_text(font, fontSize, vec[1], [&shapes](const sf::Text& text) { 
+                    return get_text_pos(shapes.back().get_pos(), shapes.back().get_size(), text);
+                }));
+                // texts.emplace_back(create_text(font, fontSize, vec[1], [&shapes](const sf::Text& text) { return get_text_pos(*(shapes.back().shape.get()), text); }));
             }
             break;
         case Setting::Rectangle:
             if (vec.size() == 11) {
-                shapes.emplace_back(ShapeData(vec[1], create_rect(vec), std::stof(vec[4]), std::stof(vec[5])));
-                texts.emplace_back(create_text(font, fontSize, "Sample Text", [&shapes](const sf::Text& text) { return get_text_pos(shapes.back(), text); }));
+                shapes.emplace_back(ShapeData(vec[1], create_rect(vec), std::stof(vec[4]), std::stof(vec[5]), setting));
+                texts.emplace_back(create_text(font, fontSize, "Sample Text", [&shapes](const sf::Text& text) { 
+                    return get_text_pos(shapes.back().get_pos(), shapes.back().get_size(), text);
+                    // return get_text_pos(*(dynamic_cast<sf::RectangleShape*>(shapes.back().shape.get())), text); 
+                }));
             }
         default: 
             break;
@@ -125,9 +129,7 @@ int main(int argc, char* argv[])
     float c[3] = { 0.0f, 1.0f, 1.0f };
     static int selected_shape_id = 0;
     static char selected_shape_text[255];
-    std::cout << "Copying selected shape name" << std::endl;
     strcpy(selected_shape_text, shapes[selected_shape_id].name.c_str());
-    std::cout << "Selected shape name copied" << std::endl;
     static ImGuiComboFlags flags = 0;
     
     std::cout << "Starting main loop" << std::endl;
@@ -139,6 +141,7 @@ int main(int argc, char* argv[])
             ImGui::SFML::ProcessEvent(window, *event);
             if(event->is<sf::Event::Closed>())
             {
+                std::cout << "Got close event" << std::endl;
                 window.close();
             }
 
@@ -156,6 +159,8 @@ int main(int argc, char* argv[])
 
             // This did not turn out great...
             // setEditor(drawCircle, drawText, circleRadius, circleSegments, displayString, c);
+            
+            std::cout << "Setting up imgui window" << std::endl;
             ImGui::Begin("Shape properties");
             if (ImGui::BeginCombo("Shapes", selected_shape_text, flags))
             {
@@ -192,6 +197,7 @@ int main(int argc, char* argv[])
                 shapes[selected_shape_id].shape->setPosition({0, 0});
             }
             ImGui::End();
+            std::cout << "Imgui setup done!" << std::endl;
 
             // TODO update shape
             // TODO update text
@@ -203,6 +209,7 @@ int main(int argc, char* argv[])
             // text.setPosition(getTextPos(circle, text));
             
             window.clear();
+            std::cout << "Drawing shapes" << std::endl;
             for(const auto& shape : shapes)
             {
                 if(shape.draw)
@@ -211,13 +218,16 @@ int main(int argc, char* argv[])
                 }
 
             }
+            std::cout << "Drawing texts" << std::endl;
             for(const auto& text : texts)
             {
                 if(text.draw)
                 {
+                    std::cout << "Drawing text: " << text.text.getPosition().x << " " << text.text.getPosition().y << " " << (std::string)text.text.getString() << std::endl;
                     window.draw(text.text);
                 }
             }
+            std::cout << "Render to screen" << std::endl;
             ImGui::SFML::Render(window);
             window.display();
         }    
