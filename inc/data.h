@@ -38,8 +38,7 @@ inline Setting to_setting(const std::string& s)
 struct ShapeData
 {
     template <typename TShape>
-    ShapeData(const std::string& n, TShape&& s, float sx, float sy, Setting setting) :
-        name(n), speed_x(sx), speed_y(sy) 
+    ShapeData(TShape&& s, float sx, float sy, Setting setting) : velocity{sx, sy}
     {
         shape = std::make_unique<TShape>(std::move(s));
         if (setting == Setting::Circle){
@@ -55,15 +54,24 @@ struct ShapeData
         return shape->getPosition(); 
     }
 
+    // update pos really
+    inline void set_pos()
+    {
+        auto pos = get_pos();
+        shape->setPosition({pos.x + velocity[0], pos.y + velocity[1]});
+    }
+
+    inline void set_color(float c[3])
+    {
+        shape->setFillColor(sf::Color(uint8_t(c[0]*255), uint8_t(c[1]*255), uint8_t(c[2]*255)));
+    }
+
     std::function<sf::Vector2f()> get_size = []() -> sf::Vector2f
     {
         throw "get_size not implemented.";
     };
-    
-    std::string name;
     std::unique_ptr<sf::Shape> shape;
-    float speed_x;
-    float speed_y;
+    float velocity[2]; // {x,y}
     // float color[3];
     bool draw{true};
 };
@@ -71,7 +79,15 @@ struct ShapeData
 struct TextData
 {
     TextData(sf::Text&& t) : text(std::move(t)), draw{true} {}
-    
+    // TextData(TextData&& t)
+    // {
+    //     this->text = std::move(t.text);
+    //     this->draw = t.draw;
+    // }
+    inline std::string value()
+    {
+        return text.getString();
+    }
     sf::Text text;
     // char displayString[255];
     bool draw;

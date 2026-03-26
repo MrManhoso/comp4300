@@ -44,44 +44,30 @@ inline sf::RectangleShape create_rect(const std::vector<std::string>& vec)
 }
 
 template <typename F>
-inline sf::Text create_text(sf::Font font, unsigned int fontSize, const std::string& value, F get_pos)
+inline sf::Text create_text(const sf::Font& font, unsigned int fontSize, const std::string& value, F get_pos)
 {
     sf::Text text(font, value, fontSize);
-    text.setFillColor(sf::Color::Black);
+    text.setFillColor(sf::Color::White);
+    // auto pos = get_pos(text);
+    // std::cout << "Text pos: (" << pos.x << ", " << pos.y << "). Value: " << (std::string)text.getString() << std::endl;
     text.setPosition(get_pos(text));
     return text;
 }
 
-// template <typename T>
 // Note in case of circle size is diameter both for x and y
-inline sf::Vector2f get_text_pos(const sf::Vector2f& shape_pos, const sf::Vector2f& shape_size, const sf::Text& t)
+inline sf::Vector2f get_text_pos(const sf::Vector2f& shape_pos, const sf::Vector2f& shape_size, const sf::Vector2f& shape_scale, const sf::Text& t)
 {
-    std::cout << "get_text_pos generic" << std::endl;
     auto center = t.getLocalBounds().getCenter();
-    auto x = shape_pos.x + (shape_size.x/2) - center.x;
-    auto y = shape_pos.y + (shape_size.y/2) - center.y;
+    auto x = shape_pos.x + (shape_size.x*shape_scale.x/2) - center.x;
+    auto y = shape_pos.y + (shape_size.y*shape_scale.y/2) - center.y;
     return {x, y};
-    // throw std::string("not implemented");
 }
 
-// TODO Prob not entirely correct at the moment
-// template <>
-// inline sf::Vector2f get_text_pos<sf::CircleShape>(const sf::CircleShape& c, const sf::Text& t)
-// {
-//     std::cout << "get_text_pos circle" << std::endl;
-//     auto center = t.getLocalBounds().getCenter();
-//     auto x = c.getPosition().x + c.getRadius() - center.x;// - text_len; //(text_len / 2);
-//     auto y = c.getPosition().y + c.getRadius() - center.y;// (font_size / 2) - center.y;
-//     return {x, y};
-// }
-
-// // TODO Prob not entirely correct at the moment
-// template <>
-// inline sf::Vector2f get_text_pos<sf::RectangleShape>(const sf::RectangleShape& r, const sf::Text& t)
-// {
-//     std::cout << "get_text_pos rectangle" << std::endl;
-//     auto center = t.getLocalBounds().getCenter();
-//     auto x = r.getPosition().x + (r.getSize().x/2) - center.x;
-//     auto y = r.getPosition().y + (r.getSize().y/2) - center.y;
-//     return {x, y};
-// }
+// Hitting a wall? -> bounce
+inline void update_velocity(ShapeData& shape, const sf::Vector2u& window_size)
+{
+    auto pos = shape.get_pos();
+    auto scale = shape.shape->getScale();
+    if (pos.x <= 0.0 || pos.x + (shape.get_size().x * scale.x) >= static_cast<float>(window_size.x)) shape.velocity[0] *= -1;
+    if (pos.y <= 0.0 || pos.y + (shape.get_size().y * scale.y) >= static_cast<float>(window_size.y)) shape.velocity[1] *= -1;
+}

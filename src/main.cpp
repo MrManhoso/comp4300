@@ -14,42 +14,32 @@
 /*******************************
 TODOS
 Assignment 1:
-1 move sample text into circle
-2a read from config file instead (assets/config.txt) 
+1a read from config file instead (assets/config.txt)  - OK
     - window
     - shapes
     - font 
     - yadayada
-2b have some container that stores shapes (the ones found in config file)
-3 draw shapes from container
-4 shapes skall studsa mot kanter. Dvs reversa x speed om den studsar mot lodrät kant
-5 shape name should be drawn in center of shape with given color and font size
+1b have some container that stores shapes (the ones found in config file) - OK!
+2 draw shapes from container - OK!
+3 shapes skall studsa mot kanter. Dvs reversa x speed om den studsar mot lodrät kant + OK!
+4 shape name should be drawn in center of shape with given color and font size - OK:isch?
 5 Imgui interface (editorn/shape properties)
-    - List all shapes, select any one and edit selected shapes properties
-    - Toggle whether the shape should be drawn or not
-    - Change scale of shape, 0-4
-    - Change x and y velocity, -8 - 8
+    - List all shapes, select any one and edit selected shapes properties - OK
+    - Toggle whether the shape should be drawn or not - OK
+    - Change scale of shape, 0-4 - OK
+    - Change x and y velocity, -8 - 8 - OK
     - Change color of shape
-    - Change name of shape
+    - Change name of shape - OK
 ********************************/
 
-// void setEditor(ShapeData& shape, bool& drawText, float& circleRadius, int& circleSegments, char* displayString, float c[3])
-// {
-//     ImGui::Begin("Shape properties");
-//     ImGui::Combo()
-//     // ImGui::Text("Edit Options");
-//     ImGui::Checkbox("Draw shape", &drawCircle);
-//     ImGui::SameLine();
-//     ImGui::Checkbox("Draw Text", &drawText);
-//     ImGui::SliderFloat("Radius", &circleRadius, 0.0f, 300.0f);
-//     ImGui::SliderInt("Sides", &circleSegments, 3, 64);
-//     ImGui::ColorEdit3("Color Circle", c);
-//     ImGui::InputText("Text", displayString, 255);
-//     // ImGui::Button("Set Text");
-//     // ImGui::SameLine();
-//     // ImGui::Button("Reset");
-//     // ImGui::End();
-// }
+void print(const sf::Text& text)
+{
+    std::cout << "Text pos: (" 
+        << text.getPosition().x 
+        << ", " << text.getPosition().y 
+        << "). Value: " << (std::string)text.getString() 
+        << std::endl;
+}
 
 int main(int argc, char* argv[])
 {
@@ -67,7 +57,7 @@ int main(int argc, char* argv[])
     std::string line;
     while (std::getline(file, line)) {
         auto vec = split(line, " ");
-        std::cout << "Found " << vec.size() << " cols for setting " << vec[0] << std::endl;
+        // std::cout << "Found " << vec.size() << " cols for setting " << vec[0] << std::endl;
         if(vec.size() < 3) continue;
         auto setting = to_setting(vec[0]);
         switch (setting)
@@ -88,19 +78,25 @@ int main(int argc, char* argv[])
             break;
         case Setting::Circle:
             if (vec.size() == 10) {
-                shapes.emplace_back(ShapeData(vec[1], create_circle(vec), std::stof(vec[4]), std::stof(vec[5]), setting));
+                shapes.emplace_back(ShapeData(create_circle(vec), std::stof(vec[4]), std::stof(vec[5]), setting));
                 // Asserts we have read font... maybe fix later
                 texts.emplace_back(create_text(font, fontSize, vec[1], [&shapes](const sf::Text& text) { 
-                    return get_text_pos(shapes.back().get_pos(), shapes.back().get_size(), text);
+                    return get_text_pos(shapes.back().get_pos(), 
+                                        shapes.back().get_size(), 
+                                        shapes.back().shape->getScale(),
+                                        text);
                 }));
                 // texts.emplace_back(create_text(font, fontSize, vec[1], [&shapes](const sf::Text& text) { return get_text_pos(*(shapes.back().shape.get()), text); }));
             }
             break;
         case Setting::Rectangle:
             if (vec.size() == 11) {
-                shapes.emplace_back(ShapeData(vec[1], create_rect(vec), std::stof(vec[4]), std::stof(vec[5]), setting));
-                texts.emplace_back(create_text(font, fontSize, "Sample Text", [&shapes](const sf::Text& text) { 
-                    return get_text_pos(shapes.back().get_pos(), shapes.back().get_size(), text);
+                shapes.emplace_back(ShapeData(create_rect(vec), std::stof(vec[4]), std::stof(vec[5]), setting));
+                texts.push_back(create_text(font, fontSize, vec[1], [&shapes](const sf::Text& text) { 
+                    return get_text_pos(shapes.back().get_pos(), 
+                                        shapes.back().get_size(), 
+                                        shapes.back().shape->getScale(),
+                                        text);
                     // return get_text_pos(*(dynamic_cast<sf::RectangleShape*>(shapes.back().shape.get())), text); 
                 }));
             }
@@ -113,7 +109,7 @@ int main(int argc, char* argv[])
 
     sf::RenderWindow window(sf::VideoMode({ wWidth, wHeight }), "SFML works!");
     window.setFramerateLimit(60);
-    window.setPosition({0,0}); // 1921,0
+    window.setPosition({1921,0}); // 0,0
     if(!ImGui::SFML::Init(window))
     {
         std::cout << "Could not init window" << "\n";
@@ -126,13 +122,21 @@ int main(int argc, char* argv[])
     ImGui::GetIO().FontGlobalScale = 2.0f;
 
     // This is the color in the editor that you can select to set a shape
-    float c[3] = { 0.0f, 1.0f, 1.0f };
     static int selected_shape_id = 0;
+    static int last_selected_shape_id = 0;
+    auto curr_col = shapes[selected_shape_id].shape->getFillColor();
+    float c[3] = { curr_col.r/255, curr_col.g/255, curr_col.b/255 };
     static char selected_shape_text[255];
-    strcpy(selected_shape_text, shapes[selected_shape_id].name.c_str());
+    strcpy(selected_shape_text, texts[selected_shape_id].value().c_str());
     static ImGuiComboFlags flags = 0;
     
+
+    /// TEST
+    // test_text(window, texts);
+    /// END TEST
+
     std::cout << "Starting main loop" << std::endl;
+    // ImGui::SetWindowPos({window.getSize().x - ImGui::GetWindowWidth(), 0});
     // main loop
     while(window.isOpen())
     {
@@ -144,7 +148,6 @@ int main(int argc, char* argv[])
                 std::cout << "Got close event" << std::endl;
                 window.close();
             }
-
             // if(const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
             // {
             //     std::cout << "Key pressed with code = " << (int)keyPressed->scancode << "\n";
@@ -152,85 +155,110 @@ int main(int argc, char* argv[])
             //     {
             //         circleSpeedX *= -1.0f;
             //     }
-
-            // }   
-
-            ImGui::SFML::Update(window, deltaClock.restart());
-
-            // This did not turn out great...
-            // setEditor(drawCircle, drawText, circleRadius, circleSegments, displayString, c);
-            
-            std::cout << "Setting up imgui window" << std::endl;
-            ImGui::Begin("Shape properties");
-            if (ImGui::BeginCombo("Shapes", selected_shape_text, flags))
-            {
-                for (int n = 0; n < shapes.size(); n++)
-                {
-                    const bool is_selected = (selected_shape_id == n);
-                    if (ImGui::Selectable(shapes[n].name.c_str(), is_selected))
-                        selected_shape_id = n;
-
-                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-            float scale;
-            float velocity;
-            // char display_string[255] = selected_shape_text;
-            // ImGui::Text("Edit Options");
-            ImGui::Checkbox("Draw shape", &shapes[selected_shape_id].draw);
-            ImGui::SameLine();
-            ImGui::Checkbox("Draw Text", &texts[selected_shape_id].draw);
-            ImGui::SliderFloat("Scale", &scale, 0.0f, 4.0f);
-            ImGui::SliderFloat2("Velocity", &velocity, -8, 8);
-            ImGui::ColorEdit3("Color", c);
-            ImGui::InputText("Name", selected_shape_text, 255);
-            // if(ImGui::Button("Set Text"))
-            // {
-            //     text.setString(displayString);
             // }
-            // ImGui::SameLine();
-            if(ImGui::Button("Reset"))
-            {
-                shapes[selected_shape_id].shape->setPosition({0, 0});
-            }
-            ImGui::End();
-            std::cout << "Imgui setup done!" << std::endl;
+        }
 
-            // TODO update shape
-            // TODO update text
-            // circle.setPointCount(circleSegments);
-            // circle.setRadius(circleRadius);
-            // circle.setFillColor(sf::Color(uint8_t(c[0]*255), uint8_t(c[1]*255), uint8_t(c[2]*255)));
-            // circle.setPosition({circle.getPosition().x + circleSpeedX, circle.getPosition().y + circleSpeedY});
-            
-            // text.setPosition(getTextPos(circle, text));
-            
-            window.clear();
-            std::cout << "Drawing shapes" << std::endl;
-            for(const auto& shape : shapes)
+
+        ImGui::SFML::Update(window, deltaClock.restart());
+
+        // This did not turn out great...
+        // setEditor(drawCircle, drawText, circleRadius, circleSegments, displayString, c);
+        
+        // std::cout << "Setting up imgui window" << std::endl;
+        ImGui::Begin("Shape properties");
+        if (ImGui::BeginCombo("Shapes", texts[selected_shape_id].value().c_str(), flags))
+        {
+            for (int n = 0; n < shapes.size(); n++)
             {
-                if(shape.draw)
-                {
-                    window.draw(*shape.shape);
+                const bool is_selected = (selected_shape_id == n);
+                // TODO check here if selected changed and do some updates accordingly
+                if (ImGui::Selectable(texts[n].value().c_str(), is_selected)) {
+                    selected_shape_id = n;
                 }
 
-            }
-            std::cout << "Drawing texts" << std::endl;
-            for(const auto& text : texts)
-            {
-                if(text.draw)
-                {
-                    std::cout << "Drawing text: " << text.text.getPosition().x << " " << text.text.getPosition().y << " " << (std::string)text.text.getString() << std::endl;
-                    window.draw(text.text);
+                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
                 }
             }
-            std::cout << "Render to screen" << std::endl;
-            ImGui::SFML::Render(window);
-            window.display();
-        }    
+            ImGui::EndCombo();
+        }
+        auto& shape = shapes[selected_shape_id];
+        auto& text = texts[selected_shape_id];
+        float scale{shape.shape->getScale().x}; // for now x and y scale are always same
+        if (selected_shape_id != last_selected_shape_id) {
+            strcpy(selected_shape_text, text.value().c_str());
+        }
+        // char display_string[255] = selected_shape_text;
+        // ImGui::Text("Edit Options");
+        ImGui::Checkbox("Draw shape", &shape.draw);
+        text.draw = shape.draw;
+        // ImGui::SameLine();
+        // ImGui::Checkbox("Draw Text", &texts[selected_shape_id].draw);
+        ImGui::SliderFloat("Scale", &scale, 0.0f, 4.0f);
+        ImGui::SliderFloat2("Velocity", shape.velocity, -8, 8);
+        if (selected_shape_id != last_selected_shape_id) {
+            auto curr_col = shape.shape->getFillColor();
+            c[0] = curr_col.r/255;
+            c[1] = curr_col.g/255;
+            c[2] = curr_col.b/255;
+        }
+        ImGui::ColorEdit3("Color", c);
+        shape.set_color(c);
+        ImGui::InputText("Name", selected_shape_text, 255);
+        if(ImGui::Button("Set Text"))
+        {
+            text.text.setString(selected_shape_text);
+        }
+        // ImGui::SameLine();
+        // if(ImGui::Button("Set Color"))
+        // {
+        // }
+        ImGui::SameLine();
+        if(ImGui::Button("Reset"))
+        {
+            shape.shape->setPosition({0, 0});
+        }
+        ImGui::End();
+        // std::cout << "Imgui setup done!" << std::endl;
+
+        shape.shape->setScale({scale, scale}); // update point count if circle? circle.setPointCount(circleSegments);
+        
+        for (auto& s : shapes) {
+            update_velocity(s, window.getSize());
+            s.set_pos();
+        }
+        for (std::size_t i = 0; i < texts.size(); ++i) {
+            auto& t = texts[i];
+            t.text.setPosition(get_text_pos(shapes[i].get_pos(), 
+                                            shapes[i].get_size(), 
+                                            shapes[i].shape->getScale(),
+                                            t.text));
+        }
+        
+        window.clear();
+        // std::cout << "Drawing shapes" << std::endl;
+        for(const auto& shape : shapes)
+        {
+            if(shape.draw)
+            {
+                window.draw(*shape.shape);
+            }
+
+        }
+        // std::cout << "Drawing texts" << std::endl;
+        for(const auto& text : texts)
+        {
+            if(text.draw)
+            {
+                window.draw(text.text);
+            }
+        }
+        // std::cout << "Render to screen" << std::endl;
+        ImGui::SFML::Render(window);
+        window.display(); 
+        last_selected_shape_id = selected_shape_id;   
     }
+    ImGui::SFML::Shutdown();
     return 0;
 }
