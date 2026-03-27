@@ -28,7 +28,7 @@ Assignment 1:
     - Toggle whether the shape should be drawn or not - OK
     - Change scale of shape, 0-4 - OK
     - Change x and y velocity, -8 - 8 - OK
-    - Change color of shape
+    - Change color of shape - OK
     - Change name of shape - OK
 ********************************/
 
@@ -123,9 +123,10 @@ int main(int argc, char* argv[])
 
     // This is the color in the editor that you can select to set a shape
     static int selected_shape_id = 0;
-    static int last_selected_shape_id = 0;
     auto curr_col = shapes[selected_shape_id].shape->getFillColor();
-    float c[3] = { curr_col.r/255, curr_col.g/255, curr_col.b/255 };
+    float c[3] = { static_cast<float>(curr_col.r)/255.0f, 
+                   static_cast<float>(curr_col.g)/255.0f, 
+                   static_cast<float>(curr_col.b)/255.0f };
     static char selected_shape_text[255];
     strcpy(selected_shape_text, texts[selected_shape_id].value().c_str());
     static ImGuiComboFlags flags = 0;
@@ -171,9 +172,16 @@ int main(int argc, char* argv[])
             for (int n = 0; n < shapes.size(); n++)
             {
                 const bool is_selected = (selected_shape_id == n);
-                // TODO check here if selected changed and do some updates accordingly
+                auto last_selected_shape_id = selected_shape_id;
                 if (ImGui::Selectable(texts[n].value().c_str(), is_selected)) {
                     selected_shape_id = n;
+                }
+                if (selected_shape_id != last_selected_shape_id) {
+                    strcpy(selected_shape_text, texts[selected_shape_id].value().c_str());
+                    auto curr_col = shapes[selected_shape_id].shape->getFillColor();
+                    c[0] = static_cast<float>(curr_col.r)/255.0f;
+                    c[1] = static_cast<float>(curr_col.g)/255.0f;
+                    c[2] = static_cast<float>(curr_col.b)/255.0f;
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -186,9 +194,7 @@ int main(int argc, char* argv[])
         auto& shape = shapes[selected_shape_id];
         auto& text = texts[selected_shape_id];
         float scale{shape.shape->getScale().x}; // for now x and y scale are always same
-        if (selected_shape_id != last_selected_shape_id) {
-            strcpy(selected_shape_text, text.value().c_str());
-        }
+        
         // char display_string[255] = selected_shape_text;
         // ImGui::Text("Edit Options");
         ImGui::Checkbox("Draw shape", &shape.draw);
@@ -197,12 +203,8 @@ int main(int argc, char* argv[])
         // ImGui::Checkbox("Draw Text", &texts[selected_shape_id].draw);
         ImGui::SliderFloat("Scale", &scale, 0.0f, 4.0f);
         ImGui::SliderFloat2("Velocity", shape.velocity, -8, 8);
-        if (selected_shape_id != last_selected_shape_id) {
-            auto curr_col = shape.shape->getFillColor();
-            c[0] = curr_col.r/255;
-            c[1] = curr_col.g/255;
-            c[2] = curr_col.b/255;
-        }
+        // if (selected_shape_id != last_selected_shape_id) {
+        // }
         ImGui::ColorEdit3("Color", c);
         shape.set_color(c);
         ImGui::InputText("Name", selected_shape_text, 255);
@@ -257,7 +259,7 @@ int main(int argc, char* argv[])
         // std::cout << "Render to screen" << std::endl;
         ImGui::SFML::Render(window);
         window.display(); 
-        last_selected_shape_id = selected_shape_id;   
+        // last_selected_shape_id = selected_shape_id;   
     }
     ImGui::SFML::Shutdown();
     return 0;
