@@ -11,26 +11,6 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-/*******************************
-TODOS
-Assignment 1:
-1a read from config file instead (assets/config.txt)  - OK
-    - window
-    - shapes
-    - font 
-    - yadayada
-1b have some container that stores shapes (the ones found in config file) - OK!
-2 draw shapes from container - OK!
-3 shapes skall studsa mot kanter. Dvs reversa x speed om den studsar mot lodrät kant + OK!
-4 shape name should be drawn in center of shape with given color and font size - OK:isch?
-5 Imgui interface (editorn/shape properties)
-    - List all shapes, select any one and edit selected shapes properties - OK
-    - Toggle whether the shape should be drawn or not - OK
-    - Change scale of shape, 0-4 - OK
-    - Change x and y velocity, -8 - 8 - OK
-    - Change color of shape - OK
-    - Change name of shape - OK
-********************************/
 
 void print(const sf::Text& text)
 {
