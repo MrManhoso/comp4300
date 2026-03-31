@@ -1,7 +1,7 @@
 #ifndef CINPUT_H
 #define CINPUT_H
 
-struct ccinput
+struct cinput
 {
     int up;
     int down;

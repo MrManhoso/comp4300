@@ -1,13 +1,20 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+#include "data/components/ccollision.h"
+#include "data/components/cinput.h"
+#include "data/components/clifespan.h"
+#include "data/components/cscore.h"
+#include "data/components/cshape.h"
+#include "data/components/ctransform.h"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
 
-using ctuple = std::tuple<>; // TODO more
+using ctuple = std::tuple<ctransform, cshape, ccollision, cinput, cscore, clifespan>; // TODO more
 using entity_tag = std::string;
 
 class entity
