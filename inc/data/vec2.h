@@ -20,32 +20,33 @@ class vec2
     operator sf::Vector2<T>() { return sf::Vector2<T>(x, y); }
     bool operator==(const vec2& rhs) { return x == rhs.x && y == rhs.y; }
     bool operator!=(const vec2& rhs) { return !(*this == rhs); }
-    vec2 operator+(const vec2& rhs)
-    { 
-        x += rhs.x; 
+    vec2 operator+(const vec2& rhs) { return vec2(x + rhs.x, y + rhs.y); }
+    vec2 operator-(const vec2& rhs) { return vec2(x - rhs.x, y - rhs.y); }
+    vec2 operator*(const T val) { return vec2(x * val, y * val); }
+    vec2 operator/(const T val) { return vec2(x / val, y / val); }
+    void operator+=(const vec2& rhs) 
+    {
+        x += rhs.x;
         y += rhs.y;
-        return *this; 
     }
-    vec2 operator-(const vec2& rhs)
-    { 
-        x -= rhs.x; 
+    void operator-=(const vec2& rhs) 
+    {
+        x -= rhs.x;
         y -= rhs.y;
-        return *this; 
     }
-    vec2 operator*(const vec2& rhs)
+    void operator*=(const T val)
     { 
-        x -= rhs.x; 
-        y -= rhs.y;
-        return *this; 
+        x *= val; 
+        y *= val; 
     }
-    vec2 operator/(const vec2& rhs) {}
-    void operator+=(const vec2& rhs) {}
-    void operator-=(const vec2& rhs) {}
-    void operator*=(const vec2& rhs) {}
-    void operator/=(const vec2& rhs) {}
+    void operator/=(const T val)
+    { 
+        x /= val; 
+        y /= val; 
+    }
     
-    // Speed is the length (magnitude) of the (velocity) vector
-    float length() const {}
+    // Note! Speed is the length (magnitude) of the (velocity) vector
+    inline float length() const { return std::sqrtf(x*x + y*y); }
     float dist(const vec2& rhs) const 
     { 
         auto dx = rhs.x - x;  
